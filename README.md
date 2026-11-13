@@ -170,10 +170,11 @@ uv run --with pyarrow python scripts/fetch_data.py --out data
 scripts/run_real.sh data
 python scripts/table.py results instruction
 python scripts/table.py results response
-python scripts/table.py results instruction15
+python scripts/table.py results instruction15 short
 ```
 
-The dataset revisions are pinned in `scripts/fetch_data.py`; the run took under ten minutes on a laptop.
+The dataset revisions are pinned in `scripts/fetch_data.py`, and `data/` is ignored by git. `run_real.sh` runs
+one command at a time; measured on a loaded laptop, it took 31 minutes.
 
 **Instructions**: token budget 20,000, text budget 500, 100 subsamples each, 95 % percentile intervals.
 
@@ -182,6 +183,9 @@ The dataset revisions are pinned in `scripts/fetch_data.py`; the run took under 
 | texts | 15011 | 52002 | 21555 | 29980 |
 | tokens | 221434 | 855114 | 1530176 | 1702911 |
 | mean tokens per text | 14.8 | 16.4 | 71.0 | 56.8 |
+| median tokens per text | 11 | 13 | 44 | 52 |
+| 90th percentile tokens per text | 25 | 27 | 150 | 84 |
+| longest tokens per text | 3705 | 485 | 1185 | 552 |
 | distinct-1, whole | 0.089 | 0.025 | 0.018 | 0.017 |
 | distinct-1, 20000 tokens | 0.225 [0.217, 0.233] | 0.174 [0.168, 0.178] | 0.163 [0.152, 0.171] | 0.150 [0.145, 0.155] |
 | distinct-2, whole | 0.426 | 0.234 | 0.216 | 0.163 |
@@ -192,7 +196,7 @@ The dataset revisions are pinned in `scripts/fetch_data.py`; the run took under 
 | entropy-2, 20000 tokens | 12.797 [12.515, 12.888] | 12.777 [12.727, 12.826] | 13.007 [12.903, 13.093] | 12.206 [12.127, 12.286] |
 | cr-gzip, whole | 2.573 | 2.795 | 2.765 | 3.196 |
 | cr-gzip, 20000 tokens | 2.480 [2.439, 2.557] | 2.649 [2.619, 2.678] | 2.662 [2.606, 2.723] | 3.029 [2.971, 3.097] |
-| heaps-beta, whole | 0.739 | 0.643 | 0.648 | 0.639 |
+| heaps-beta, whole | 0.744 | 0.651 | 0.639 | 0.634 |
 | heaps-beta, 20000 tokens | 0.795 [0.771, 0.816] | 0.756 [0.734, 0.775] | 0.751 [0.715, 0.793] | 0.728 [0.705, 0.753] |
 | self-bleu, 500 texts | 0.214 [0.196, 0.234] | 0.178 [0.164, 0.193] | 0.262 [0.249, 0.279] | 0.459 [0.446, 0.470] |
 | rouge-l, 500 texts | 0.113 [0.102, 0.124] | 0.121 [0.113, 0.132] | 0.106 [0.101, 0.112] | 0.154 [0.148, 0.160] |
@@ -200,9 +204,28 @@ The dataset revisions are pinned in `scripts/fetch_data.py`; the run took under 
 | near-dup, 500 texts | 0.002 [0.000, 0.008] | 0.000 [0.000, 0.000] | 0.017 [0.008, 0.028] | 0.000 [0.000, 0.002] |
 | opening-top10, 500 texts | 0.264 [0.229, 0.297] | 0.114 [0.094, 0.138] | 0.273 [0.240, 0.312] | 0.180 [0.148, 0.216] |
 | opening-hhi, 500 texts | 0.012 [0.009, 0.015] | 0.004 [0.003, 0.005] | 0.013 [0.010, 0.017] | 0.007 [0.005, 0.009] |
-| template-top10, 500 texts | 0.082 [0.055, 0.111] | 0.042 [0.029, 0.055] | 0.080 [0.031, 0.123] | 0.270 [0.191, 0.326] |
+| template-top10, 500 texts | 0.085 [0.056, 0.114] | 0.040 [0.026, 0.052] | 0.080 [0.041, 0.117] | 0.269 [0.196, 0.319] |
 | opening-top10, whole | 0.254 | 0.098 | 0.262 | 0.163 |
 | opening-hhi, whole | 0.010 | 0.002 | 0.011 | 0.005 |
+
+**Instructions cut to 15 tokens** (`--truncate 15`, same budgets, short table):
+
+| metric | dolly | alpaca | magpie | personas |
+|---|---|---|---|---|
+| texts | 15011 | 52002 | 21555 | 29980 |
+| tokens | 161779 | 637678 | 314836 | 449488 |
+| mean tokens per text | 10.8 | 12.3 | 14.6 | 15.0 |
+| median tokens per text | 11 | 13 | 15 | 15 |
+| 90th percentile tokens per text | 15 | 15 | 15 | 15 |
+| longest tokens per text | 15 | 15 | 15 | 15 |
+| distinct-1, 20000 tokens | 0.206 [0.202, 0.210] | 0.158 [0.154, 0.162] | 0.152 [0.148, 0.155] | 0.184 [0.181, 0.188] |
+| distinct-2, 20000 tokens | 0.612 [0.603, 0.621] | 0.571 [0.563, 0.579] | 0.549 [0.539, 0.558] | 0.570 [0.561, 0.576] |
+| distinct-3, 20000 tokens | 0.803 [0.795, 0.811] | 0.840 [0.834, 0.846] | 0.793 [0.783, 0.805] | 0.800 [0.789, 0.809] |
+| entropy-2, 20000 tokens | 12.418 [12.365, 12.465] | 12.453 [12.416, 12.486] | 12.373 [12.319, 12.421] | 12.382 [12.332, 12.419] |
+| cr-gzip, 20000 tokens | 2.619 [2.594, 2.648] | 2.805 [2.779, 2.831] | 2.788 [2.761, 2.821] | 2.883 [2.846, 2.922] |
+| heaps-beta, 20000 tokens | 0.775 [0.755, 0.799] | 0.736 [0.717, 0.753] | 0.726 [0.709, 0.747] | 0.754 [0.737, 0.773] |
+| self-bleu, 500 texts | 0.220 [0.201, 0.238] | 0.184 [0.172, 0.200] | 0.244 [0.222, 0.260] | 0.247 [0.229, 0.264] |
+| vendi, 500 texts | 249.3 [241.4, 260.8] | 255.9 [248.4, 263.0] | 253.4 [245.7, 262.2] | 261.2 [253.2, 269.4] |
 
 **Responses**, every response cut to its first 100 tokens (`--truncate 100`; lengths and token counts are after
 the cut): token budget 50,000, text budget 500, 100 subsamples each.
@@ -212,6 +235,9 @@ the cut): token budget 50,000, text budget 500, 100 subsamples each.
 | texts | 15011 | 51974 | 21555 | 29980 |
 | tokens | 712269 | 2374798 | 2139960 | 2619948 |
 | mean tokens per text | 47.4 | 45.7 | 99.3 | 87.4 |
+| median tokens per text | 37 | 38 | 100 | 100 |
+| 90th percentile tokens per text | 100 | 100 | 100 | 100 |
+| longest tokens per text | 100 | 100 | 100 | 100 |
 | distinct-1, whole | 0.058 | 0.018 | 0.016 | 0.027 |
 | distinct-1, 50000 tokens | 0.186 [0.182, 0.192] | 0.145 [0.140, 0.149] | 0.128 [0.125, 0.132] | 0.168 [0.162, 0.175] |
 | distinct-2, whole | 0.429 | 0.225 | 0.191 | 0.264 |
@@ -222,7 +248,7 @@ the cut): token budget 50,000, text budget 500, 100 subsamples each.
 | entropy-2, 50000 tokens | 14.417 [14.385, 14.448] | 14.172 [14.134, 14.210] | 13.910 [13.866, 13.961] | 14.098 [14.025, 14.170] |
 | cr-gzip, whole | 2.361 | 2.593 | 2.705 | 2.495 |
 | cr-gzip, 50000 tokens | 2.336 [2.317, 2.353] | 2.547 [2.522, 2.580] | 2.662 [2.639, 2.689] | 2.459 [2.422, 2.497] |
-| heaps-beta, whole | 0.729 | 0.660 | 0.651 | 0.693 |
+| heaps-beta, whole | 0.748 | 0.660 | 0.643 | 0.698 |
 | heaps-beta, 50000 tokens | 0.812 [0.788, 0.847] | 0.777 [0.759, 0.816] | 0.761 [0.735, 0.804] | 0.796 [0.772, 0.844] |
 | self-bleu, 500 texts | 0.095 [0.087, 0.102] | 0.127 [0.119, 0.136] | 0.274 [0.262, 0.286] | 0.197 [0.184, 0.208] |
 | rouge-l, 500 texts | 0.080 [0.074, 0.087] | 0.088 [0.081, 0.098] | 0.140 [0.136, 0.144] | 0.109 [0.103, 0.114] |
@@ -230,7 +256,7 @@ the cut): token budget 50,000, text budget 500, 100 subsamples each.
 | near-dup, 500 texts | 0.001 [0.000, 0.004] | 0.003 [0.000, 0.013] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.004] |
 | opening-top10, 500 texts | 0.042 [0.027, 0.057] | 0.047 [0.040, 0.059] | 0.166 [0.133, 0.193] | 0.076 [0.061, 0.094] |
 | opening-hhi, 500 texts | 0.002 [0.002, 0.002] | 0.002 [0.002, 0.002] | 0.006 [0.004, 0.007] | 0.003 [0.002, 0.003] |
-| template-top10, 500 texts | 0.038 [0.017, 0.052] | 0.044 [0.030, 0.060] | 0.170 [0.134, 0.207] | 0.188 [0.153, 0.237] |
+| template-top10, 500 texts | 0.038 [0.021, 0.053] | 0.045 [0.031, 0.059] | 0.171 [0.132, 0.210] | 0.188 [0.153, 0.234] |
 | opening-top10, whole | 0.028 | 0.026 | 0.154 | 0.063 |
 | opening-hhi, whole | 0.000 | 0.000 | 0.004 | 0.001 |
 
@@ -239,25 +265,28 @@ What the tables show:
 - **Size can flip an order.** On the whole datasets distinct-3 ranks dolly above alpaca (0.682 against 0.537),
   but dolly is the smaller set (221,434 tokens against 855,114). At 20,000 tokens the order reverses:
   `divscore compare` puts dolly minus alpaca at -0.0286 [-0.0895, -0.0109] for distinct-3, where the whole-data
-  difference is +0.1458. For distinct-2 the whole-data gap of +0.1920 shrinks to +0.0396 [-0.0021, 0.0548], which
-  is unclear. The full comparison is in `results/compare-dolly-alpaca.md`.
-- **personas is the least varied set at equal token budget**: distinct-2 0.499 against 0.619 to 0.659 for the other
-  three, and the highest gzip ratio, 3.029.
-- **Length moves the text-budget metrics.** With whole instructions, personas has self-BLEU 0.459 and Vendi 119.5
-  of 500, and magpie Vendi 174.8, against 232.5 for dolly and 247.6 for alpaca; magpie and personas instructions
-  average 71.0 and 56.8 tokens, dolly and alpaca 14.8 and 16.4. With every instruction cut to its first 15 tokens
-  (`--truncate 15`, `results/instruction15-*.json`) the Vendi scores are 249.3, 255.9, 253.4 and 261.2 (dolly,
-  alpaca, magpie, personas) and personas' self-BLEU falls to 0.247. Most of the overlap between the long synthetic
-  instructions sits after their first 15 tokens, so these numbers mean little without the length beside them.
-- **Opening concentration does not separate people from models in these sets.** At 500 texts, 26.4 % of dolly
-  instructions start with one of the ten most common three-word openings, against 11.4 % for alpaca, 27.3 % for
-  magpie and 18.0 % for personas; dolly minus alpaca is +0.1506 [0.1029, 0.1850]. The human-written set leans on
-  question stems ("what is the" opens 6.5 % of it); in alpaca the same opening is the most common one and opens
-  1.9 %.
-- **Responses.** After the cut to 100 tokens magpie responses still average 99.3 tokens against 47.4 for dolly, so
-  the text-budget numbers carry some of that length difference. magpie has self-BLEU 0.274, Vendi 97.0 and 16.6 %
-  of responses starting with a top-10 opening, against 0.095, 193.0 and 4.2 % for dolly; at the token budget,
-  where length plays no part, its distinct-2 is also the lowest of the four (0.561).
+  difference is +0.1458. For distinct-2 the whole-data gap of +0.1920 shrinks to +0.0396 [-0.0021, 0.0548]
+  (`results/compare-dolly-alpaca.md`).
+- **A token budget fixes the amount of text, not the length of the texts.** With whole instructions personas is the
+  least varied set at 20,000 tokens: distinct-2 0.499 against 0.619 to 0.659 for the other three.
+  Its instructions are also long (56.8 tokens on average, against 14.8 for dolly). With every instruction cut to
+  its first 15 tokens (table below) personas' distinct-2 is 0.570, level with alpaca's 0.571, its distinct-1
+  (0.184) is the second highest of the four, and only cr-gzip still ranks personas last (2.883).
+- **Length moves the text-budget metrics too.** With whole instructions personas has self-BLEU
+  0.459 and Vendi 119.5 of 500, and magpie Vendi 174.8, against 232.5 for dolly and 247.6 for
+  alpaca. Cut to 15 tokens, the Vendi scores are 249.3, 255.9, 253.4, 261.2 (dolly, alpaca, magpie,
+  personas) and personas' self-BLEU is 0.247. BLEU and a cosine on raw n-gram counts rise with text
+  length for any texts, so these scores say little unless the lengths are equal.
+- **Opening concentration does not separate people from models in these sets.** At 500 texts,
+  26.4 % of dolly instructions start with one of the ten most common three-word openings, against
+  11.4 % for alpaca, 27.3 % for magpie and 18.0 % for personas; dolly minus alpaca is
+  +0.1506 [0.1029, 0.1850]. The human-written set leans on question stems ("what is the" opens
+  6.5 % of it); in alpaca the same opening is the most common one and opens 1.9 %.
+- **Responses.** After the cut to 100 tokens magpie responses still average 99.3 tokens against
+  47.4 for dolly. magpie has self-BLEU 0.274, Vendi 97.0 and 16.6 % of responses
+  starting with a top-10 opening, against 0.095, 193.0 and 4.2 % for dolly. At the token budget its
+  distinct-2 is the lowest of the four (0.561); cut to 47 tokens, dolly's mean, it is 0.541
+  (`results/response47-magpie.json`), so this number too moves with length.
 
 **Openings** (`divscore openings FILE --field instruction --top 10`), whole datasets:
 
@@ -289,6 +318,10 @@ Type-token curves to 200000 tokens, mean of 5 orders.
   it is, not uncertainty about the process that produced it. There is no permutation test in `compare`.
 - The intervals narrow towards zero as the budget approaches the size of the smaller dataset; keep budgets at about
   half of it or less before reading the "more diverse" column.
+- A token budget fixes the amount of text, not the length of the texts. Two sets measured on the same number of
+  tokens still differ in how many text starts and ends that text holds, and every metric here moved when the
+  instructions were cut to 15 tokens. Compare sets of similar length, or cut them to a common length with
+  `--truncate`, which only shortens texts.
 - Cutting the last text of a token subsample keeps the count exact but leaves one partial text per draw.
 - The templates are masked word 5-grams, not the part-of-speech templates of Shaib et al.; quoted spans are matched
   by a regular expression that misses nested and unbalanced quotes.
