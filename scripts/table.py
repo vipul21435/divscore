@@ -44,6 +44,8 @@ def main() -> None:
     print(row("texts", [str(r["n_texts"]) for r in reports]))
     print(row("tokens", [str(r["n_tokens"]) for r in reports]))
     print(row("mean tokens per text", [f"{r['lengths']['mean']:.1f}" for r in reports]))
+    for key, label in (("median", "median"), ("p90", "90th percentile"), ("max", "longest")):
+        print(row(f"{label} tokens per text", [f"{r['lengths'][key]:.0f}" for r in reports]))
     for name in TOKEN_ROWS:
         print(row(f"{name}, whole", [f"{r['metrics'][name]['naive']:.3f}" for r in reports]))
         print(row(f"{name}, {tb} tokens", [cell(r["metrics"][name]) for r in reports]))
