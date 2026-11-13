@@ -349,6 +349,9 @@ Type-token curves to 200000 tokens, mean of 5 orders.
   measures.
 - [contamscan](https://github.com/vipul21435/contamscan) checks benchmark contamination by n-gram overlap.
 - [sftlint](https://github.com/vipul21435/sftlint) lints chat and tool-calling datasets.
+- [snippetcheck](https://github.com/vipul21435/snippetcheck): static checks for the code inside instruction and chat datasets.
+- [datadelta](https://github.com/vipul21435/datadelta): what was added, removed and edited between two versions of a dataset.
+- [chatconv](https://github.com/vipul21435/chatconv): converts chat datasets between formats and reports what each conversion loses.
 
 ## Licence
 
