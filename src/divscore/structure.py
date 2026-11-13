@@ -6,6 +6,7 @@ import math
 import re
 from collections import Counter
 from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 
@@ -40,12 +41,22 @@ def opening_counts(token_lists: Sequence[Sequence[str]], k: int = 3) -> Counter[
     return counts
 
 
+def ranked(counts: Counter, top: int | None = None) -> list[tuple[Any, int]]:
+    """Keys by count, highest first, ties broken by the key itself.
+
+    ``Counter.most_common`` breaks ties by insertion order, which depends on
+    the order of the texts and, for keys added from a set, on string hashing.
+    """
+    items = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    return items if top is None else items[:top]
+
+
 def top_share(counts: Counter, top: int = 10) -> float:
     """Share of all counted items that fall in the ``top`` most common keys."""
     total = sum(counts.values())
     if not total:
         return math.nan
-    return sum(c for _, c in counts.most_common(top)) / total
+    return sum(c for _, c in ranked(counts, top)) / total
 
 
 def herfindahl(counts: Counter) -> float:
@@ -83,7 +94,7 @@ def template_share(masked: Sequence[Sequence[str]], n: int = 5, top: int = 10) -
     docs = [t for t in masked if len(t)]
     if not docs:
         return math.nan
-    common = {g for g, _ in template_counts(docs, n).most_common(top)}
+    common = {g for g, _ in ranked(template_counts(docs, n), top)}
     hit = sum(1 for t in docs if any(tuple(t[i : i + n]) in common for i in range(len(t) - n + 1)))
     return hit / len(docs)
 
@@ -169,7 +180,7 @@ def openings_summary(
         "herfindahl": herfindahl(counts),
         "distinct": len(counts),
         "openings": [
-            {"text": " ".join(o), "count": c, "share": c / n} for o, c in counts.most_common(top)
+            {"text": " ".join(o), "count": c, "share": c / n} for o, c in ranked(counts, top)
         ],
         "template_n": template_n,
         "templates": [],
@@ -177,7 +188,6 @@ def openings_summary(
     if templates > 0:
         tcounts = template_counts([mask_tokens(t) for t in texts], template_n)
         summary["templates"] = [
-            {"text": " ".join(g), "count": c, "share": c / n}
-            for g, c in tcounts.most_common(templates)
+            {"text": " ".join(g), "count": c, "share": c / n} for g, c in ranked(tcounts, templates)
         ]
     return summary

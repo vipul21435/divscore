@@ -13,6 +13,7 @@ from divscore.structure import (
     mask_tokens,
     opening,
     opening_counts,
+    ranked,
     template_counts,
     template_share,
     top_share,
@@ -93,3 +94,19 @@ def test_geometric_points_and_lengths():
     assert s["median"] == 3.0
     assert s["max"] == 100.0
     assert length_summary([]) == {}
+
+
+def test_template_share_ignores_document_order_on_ties():
+    # x is in three texts; p and q tie at two. Ranking ties by insertion order
+    # made the answer depend on the order of the texts (and on hash order).
+    docs = [["x", "p"], ["x", "p"], ["x"], ["q"], ["q"]]
+    forward = template_share(docs, n=1, top=2)
+    backward = template_share(docs[::-1], n=1, top=2)
+    assert forward == backward == pytest.approx(3 / 5)
+
+
+def test_ranked_breaks_ties_by_key():
+    a = Counter({("b",): 2, ("a",): 2, ("c",): 5})
+    b = Counter({("a",): 2, ("c",): 5, ("b",): 2})
+    assert ranked(a, 2) == ranked(b, 2) == [(("c",), 5), (("a",), 2)]
+    assert ranked(a) == [(("c",), 5), (("a",), 2), (("b",), 2)]
