@@ -124,7 +124,7 @@ def iter_records(path: str | Path, fmt: str | None = None) -> Iterator[Any]:
         raise ValueError(f"unknown format {fmt!r}; expected one of {', '.join(FORMATS)}")
     p = Path(path)
     if fmt == "json":
-        data = json.loads(p.read_text(encoding="utf-8"))
+        data = json.loads(p.read_text(encoding="utf-8-sig"))
         if isinstance(data, dict):
             data = next((v for v in data.values() if isinstance(v, list)), [data])
         if not isinstance(data, list):
@@ -133,7 +133,7 @@ def iter_records(path: str | Path, fmt: str | None = None) -> Iterator[Any]:
             )
         yield from data
     elif fmt == "jsonl":
-        with p.open(encoding="utf-8") as fh:
+        with p.open(encoding="utf-8-sig") as fh:
             for lineno, line in enumerate(fh, 1):
                 line = line.strip()
                 if not line:
@@ -144,10 +144,10 @@ def iter_records(path: str | Path, fmt: str | None = None) -> Iterator[Any]:
                     raise ValueError(f"{p}:{lineno}: invalid JSON ({exc.msg})") from exc
     elif fmt in ("csv", "tsv"):
         _raise_csv_field_limit()
-        with p.open(encoding="utf-8", newline="") as fh:
+        with p.open(encoding="utf-8-sig", newline="") as fh:
             yield from csv.DictReader(fh, delimiter="," if fmt == "csv" else "\t")
     else:
-        with p.open(encoding="utf-8") as fh:
+        with p.open(encoding="utf-8-sig") as fh:
             for line in fh:
                 line = line.rstrip("\n")
                 if line.strip():

@@ -108,3 +108,19 @@ def test_json_top_level_must_be_list_or_object(tmp_path, payload):
     p.write_text(payload, encoding="utf-8")
     with pytest.raises(ValueError, match="top level"):
         load_texts(p)
+
+
+@pytest.mark.parametrize(
+    ("name", "body", "field"),
+    [
+        ("d.csv", "text,id\nhello,1\n", "text"),
+        ("d.tsv", "text\tid\nhello\t1\n", "text"),
+        ("d.jsonl", '{"text": "hello"}\n', "text"),
+        ("d.json", '[{"text": "hello"}]', "text"),
+        ("d.txt", "hello\n", "text"),
+    ],
+)
+def test_utf8_byte_order_mark_is_ignored(tmp_path, name, body, field):
+    p = tmp_path / name
+    p.write_bytes(b"\xef\xbb\xbf" + body.encode("utf-8"))
+    assert load_texts(p, field=field).texts == ["hello"]
