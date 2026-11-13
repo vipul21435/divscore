@@ -139,8 +139,10 @@ budget is above half of a dataset's tokens or texts.
   1/k when all k openings differ, 1 when all are the same). Neither can go below a floor set by the number of
   texts: with k texts all opening differently, top10 is 10/k (0.02 at a text budget of 500; the 0.6667 of the varied
   file in the quickstart is 10/15, every sampled opening different) and hhi is 1/k.
-- **template-top10**: numbers and quoted spans are replaced by placeholders, and the share of texts that contain one
-  of the ten most common masked 5-grams (counted once per text) is reported. Shaib et al.,
+- **template-top10**: standalone numbers and quoted spans are replaced by placeholders (digits inside a word, as in
+  utf8 or python3.12, are kept), a masked 5-gram found in at least two texts counts as a template, and the share of
+  texts that contain one of the ten most common templates is reported; ties are broken by the template text. It is
+  0 when no 5-gram repeats. Shaib et al.,
   [Detection and Measurement of Syntactic Templates in Generated Text](https://arxiv.org/abs/2407.00211) (2024),
   define templates over part-of-speech sequences of length 4 to 8; this is a lexical stand-in without a tagger, not
   their measure.
