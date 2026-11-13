@@ -115,13 +115,15 @@ budget is above half of a dataset's tokens or texts.
 - **heaps-beta**: the exponent of Heaps' law V = K N^beta, fitted by least squares in log space to the number of
   distinct tokens V after N tokens, at 12 points spaced on a log scale from 50 tokens to the end of the subsample.
 - **self-bleu**: each text scored by BLEU-4 against all other texts of the subsample as references, averaged, as in
-  Texygen (Zhu et al., 2018, [arXiv:1802.01886](https://arxiv.org/abs/1802.01886); the Texygen documentation
-  describes it as "Regarding one sentence as hypothesis and the others as reference"). Clipping uses the largest
+  Texygen (Zhu et al., 2018, [arXiv:1802.01886](https://arxiv.org/abs/1802.01886); the project's
+  [evaluation notes](https://github.com/geek-ai/Texygen/blob/master/docs/evaluation.md) describe it as "Regarding
+  one sentence as hypothesis and the others as reference"). Clipping uses the largest
   count in any one reference, the brevity penalty the closest reference length, and NLTK's "method 1" smoothing;
   the tests check it against `nltk.translate.bleu_score.sentence_bleu`. Keeping the largest and second-largest
   count of every n-gram over the subsample gives the leave-one-out clipping counts in one pass.
-- **rouge-l**: the homogenisation score of Shaib et al. (2024): mean ROUGE-L F1 over pairs of texts, here over 500
-  random distinct pairs per subsample. The LCS is computed with a bit-vector recurrence on Python integers; the
+- **rouge-l**: the homogenisation score of Shaib et al. (2024), which averages ROUGE-L over all pairs of texts;
+  here with ROUGE-L F1, over 500 pairs per subsample drawn at random with replacement, each pair joining two
+  different texts. The LCS is computed with a bit-vector recurrence on Python integers; the
   tests check it against a plain dynamic programme and the F1 against the `rouge-score` package.
 - **vendi**: the Vendi score of Friedman and Dieng (2022), [The Vendi Score: A Diversity Evaluation Metric for
   Machine Learning](https://arxiv.org/abs/2210.02410), "the exponential of the Shannon entropy of the eigenvalues of

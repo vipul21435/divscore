@@ -9,8 +9,10 @@ smoothing of NLTK (a numerator of 0.1 for an order with no match), so that a
 single text matches ``nltk.translate.bleu_score.sentence_bleu`` with
 ``SmoothingFunction().method1``.
 
-ROUGE-L homogenisation (Shaib et al., 2024) is the mean ROUGE-L F1 over
-distinct pairs of texts; here over a random set of pairs.
+Shaib et al. (2024) define homogenisation as the mean ROUGE-L similarity
+over all pairs of texts. Here the similarity is ROUGE-L F1 and, when there
+are more pairs than requested, the pairs are drawn at random with
+replacement (each pair joins two different texts).
 """
 
 from __future__ import annotations
@@ -143,7 +145,10 @@ def rouge_l(a: Sequence[str], b: Sequence[str]) -> float:
 
 
 def sample_pairs(k: int, n_pairs: int, rng: np.random.Generator) -> list[tuple[int, int]]:
-    """All distinct pairs when there are at most ``n_pairs``, else a random set."""
+    """Every pair when there are at most ``n_pairs``, else ``n_pairs`` random pairs.
+
+    Random pairs are drawn with replacement; each joins two different texts.
+    """
     total = k * (k - 1) // 2
     if total <= n_pairs:
         return [(i, j) for i in range(k) for j in range(i + 1, k)]
@@ -156,7 +161,7 @@ def sample_pairs(k: int, n_pairs: int, rng: np.random.Generator) -> list[tuple[i
 def rouge_l_homogenization(
     token_lists: Sequence[Sequence[str]], n_pairs: int, rng: np.random.Generator
 ) -> float:
-    """Mean ROUGE-L F1 over random distinct pairs of non-empty texts."""
+    """Mean ROUGE-L F1 over pairs of different non-empty texts (see :func:`sample_pairs`)."""
     docs = [t for t in token_lists if len(t)]
     if len(docs) < 2:
         return math.nan
