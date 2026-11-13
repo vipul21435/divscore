@@ -128,3 +128,11 @@ def test_whole_dataset_heaps_beta_ignores_file_order():
     assert fwd.naive["heaps-beta"] == rev.naive["heaps-beta"]
     expected = heaps_beta_shuffled([d.tokens for d in docs], seed=3)
     assert fwd.naive["heaps-beta"] == pytest.approx(expected)
+
+
+def test_differences_refuses_equal_seeds():
+    docs = make_docs([f"t{i} u{i}" for i in range(10)])
+    a = measure(docs, 6, "a", 3, seed=5)
+    b = measure(docs, 6, "b", 3, seed=5)
+    with pytest.raises(ValueError, match="same seed"):
+        differences(a, b)

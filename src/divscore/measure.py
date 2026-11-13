@@ -261,8 +261,18 @@ def differences(a: Measurement, b: Measurement, level: float = 0.95) -> list[Dif
 
     Draw ``r`` of ``a`` and draw ``r`` of ``b`` are independent subsamples of the
     same budget, so ``a_r - b_r`` is the difference between one random sample
-    of each; its spread is what the interval reports.
+    of each; its spread is what the interval reports. The two measurements
+    must use different seeds, or equal-sized datasets would draw the same rows.
+
+    The spread shrinks towards zero as the budget approaches the size of a
+    dataset (every subsample is then nearly the whole dataset), so an
+    interval that excludes zero is not a significance test.
     """
+    if a.seed == b.seed:
+        raise ValueError(
+            "a and b were measured with the same seed; use different seeds so that their "
+            "subsamples are drawn independently"
+        )
     out = []
     alpha = (1.0 - level) / 2.0
     for name, est in a.controlled.items():

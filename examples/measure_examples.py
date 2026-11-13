@@ -13,8 +13,8 @@ from divscore.report import comparison_markdown, measurement_markdown
 from divscore.text import make_docs
 
 DATA = Path(__file__).resolve().parent / "data"
-TOKEN_BUDGET = 250
-TEXT_BUDGET = 20
+TOKEN_BUDGET = 140
+TEXT_BUDGET = 15
 
 results = []
 for seed, name in enumerate(("varied.jsonl", "templated.jsonl")):

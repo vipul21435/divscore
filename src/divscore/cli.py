@@ -147,6 +147,13 @@ def _check_budgets(path: Path, docs: list[Doc], args: argparse.Namespace) -> Non
             f"{path} holds {len(docs)} non-empty texts, fewer than the text budget of "
             f"{args.texts}; pass --texts {len(docs)} or less"
         )
+    if 2 * args.budget > available or (args.texts and 2 * args.texts > len(docs)):
+        print(
+            f"divscore: warning: a budget above half of {path} ({available} tokens, "
+            f"{len(docs)} texts) leaves little room between subsamples; intervals narrow "
+            "towards zero as the budget nears the dataset size",
+            file=sys.stderr,
+        )
 
 
 def _measure_one(path: Path, name: str | None, docs: list[Doc], skipped: int, seed: int, args):

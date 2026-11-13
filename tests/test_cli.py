@@ -168,3 +168,10 @@ def test_keep_case_reaches_the_template_table(tmp_path):
     kept_rows = {row["text"]: row["count"] for row in kept["templates"]}
     assert kept_rows["Write A Short Poem About"] == 3
     assert kept_rows["write a short poem about"] == 2
+
+
+def test_warns_when_budget_exceeds_half_the_data(capsys):
+    assert main(["measure", VARIED, "--budget", "300", "--texts", "0", "--resamples", "2"]) == 0
+    assert "warning" in capsys.readouterr().err
+    assert main(["measure", VARIED, "--budget", "100", "--texts", "10", "--resamples", "2"]) == 0
+    assert "warning" not in capsys.readouterr().err

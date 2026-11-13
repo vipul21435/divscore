@@ -28,10 +28,10 @@ pip install "divscore[plot] @ git+https://github.com/vipul21435/divscore"
 ## Quickstart
 
 `examples/data/` holds two small files written for this repo: 30 varied questions and 30 prompts built from three
-templates.
+templates. The budgets are about half of the smaller file (294 tokens, 30 texts); see the note on budget size below.
 
 ```
-divscore compare examples/data/varied.jsonl examples/data/templated.jsonl --budget 250 --texts 20 --resamples 200
+divscore compare examples/data/varied.jsonl examples/data/templated.jsonl --budget 140 --texts 15 --resamples 200
 ```
 
 ```
@@ -40,30 +40,30 @@ divscore compare examples/data/varied.jsonl examples/data/templated.jsonl --budg
 A: 30 texts, 405 tokens. B: 30 texts, 294 tokens.
 200 subsamples per side and budget, seed 0.
 
-Budget: 250 tokens
+Budget: 140 tokens
 
 | metric | better | A | B | A - B | 95 % interval | whole data A - B | more diverse |
 |---|---|---:|---:|---:|---|---:|---|
-| distinct-1 | higher | 0.6338 | 0.1738 | 0.4600 | [0.4239, 0.4920] | 0.4306 | A |
-| distinct-2 | higher | 0.9705 | 0.2855 | 0.6850 | [0.6663, 0.7101] | 0.7035 | A |
-| distinct-3 | higher | 0.9957 | 0.3723 | 0.6234 | [0.6067, 0.6422] | 0.6566 | A |
-| entropy-1 | higher | 6.7899 | 4.3776 | 2.4122 | [2.2810, 2.5508] | 2.7657 | A |
-| entropy-2 | higher | 7.7895 | 5.1647 | 2.6248 | [2.5664, 2.6797] | 3.2398 | A |
-| cr-gzip | lower | 1.6957 | 4.3236 | -2.6279 | [-2.7801, -2.4811] | -3.1776 | A |
-| cr-bz2 | lower | 1.6595 | 3.6534 | -1.9939 | [-2.1037, -1.9126] | -2.2299 | A |
-| heaps-beta | higher | 0.8340 | 0.4727 | 0.3613 | [0.2005, 0.5180] | 0.2605 | A |
+| distinct-1 | higher | 0.7018 | 0.2541 | 0.4476 | [0.3786, 0.5002] | 0.4306 | A |
+| distinct-2 | higher | 0.9810 | 0.3894 | 0.5916 | [0.5292, 0.6353] | 0.7035 | A |
+| distinct-3 | higher | 0.9967 | 0.4848 | 0.5119 | [0.4600, 0.5556] | 0.6566 | A |
+| entropy-1 | higher | 6.2773 | 4.2568 | 2.0205 | [1.8111, 2.2416] | 2.7657 | A |
+| entropy-2 | higher | 6.9739 | 4.9486 | 2.0253 | [1.9096, 2.1392] | 3.2398 | A |
+| cr-gzip | lower | 1.5709 | 3.2473 | -1.6765 | [-1.9057, -1.4583] | -3.1776 | A |
+| cr-bz2 | lower | 1.4737 | 2.6893 | -1.2156 | [-1.3743, -1.0594] | -2.2299 | A |
+| heaps-beta | higher | 0.8394 | 0.5254 | 0.3140 | [0.0033, 0.5697] | 0.3639 | A |
 
-Budget: 20 texts
+Budget: 15 texts
 
 | metric | better | A | B | A - B | 95 % interval | whole data A - B | more diverse |
 |---|---|---:|---:|---:|---|---:|---|
-| self-bleu | lower | 0.0353 | 0.7747 | -0.7394 | [-0.8058, -0.6904] | n/a | A |
-| rouge-l | lower | 0.1159 | 0.6162 | -0.5003 | [-0.5274, -0.4762] | n/a | A |
-| vendi | higher | 18.4107 | 5.5911 | 12.8196 | [12.3203, 13.3280] | n/a | A |
+| self-bleu | lower | 0.0325 | 0.7225 | -0.6900 | [-0.7732, -0.6073] | n/a | A |
+| rouge-l | lower | 0.1166 | 0.6167 | -0.5001 | [-0.5317, -0.4661] | n/a | A |
+| vendi | higher | 14.0421 | 5.0903 | 8.9519 | [8.3795, 9.4519] | n/a | A |
 | near-dup | lower | 0.0000 | 0.0000 | 0.0000 | [0.0000, 0.0000] | n/a | unclear |
-| opening-top10 | lower | 0.5000 | 1.0000 | -0.5000 | [-0.5000, -0.5000] | -0.6667 | A |
-| opening-hhi | lower | 0.0500 | 1.0000 | -0.9500 | [-0.9500, -0.9500] | -0.9667 | A |
-| template-top10 | lower | 0.0850 | 1.0000 | -0.9150 | [-0.9500, -0.9000] | n/a | A |
+| opening-top10 | lower | 0.6667 | 1.0000 | -0.3333 | [-0.3333, -0.3333] | -0.6667 | A |
+| opening-hhi | lower | 0.0667 | 1.0000 | -0.9333 | [-0.9333, -0.9333] | -0.9667 | A |
+| template-top10 | lower | 0.0000 | 0.9963 | -0.9963 | [-1.0000, -0.9333] | n/a | A |
 ```
 
 `divscore measure FILE` prints the same tables for one dataset, `divscore openings FILE` lists the most common
@@ -94,9 +94,13 @@ subsample draws exactly `--texts` whole texts without replacement. The metrics t
 (similarity, duplicates, openings) depend on how many texts are compared, so the number of texts is what is held
 fixed for them; their values still depend on text length, which `--truncate` controls.
 
-`compare A B` draws independent subsamples from A and B at the same budgets (100 each by default), reports the
-difference of the means, and the percentile interval of the draw-by-draw differences A_r - B_r. A metric is
-marked "unclear" when that interval contains zero. No permutation test is implemented.
+`compare A B` draws independent subsamples from A and B at the same budgets (100 each by default, with seeds
+`--seed` and `--seed + 1`), reports the difference of the means, and the percentile interval of the draw-by-draw
+differences A_r - B_r. The "more diverse" column names the side the interval favours, or "unclear" when the
+interval contains zero; it is not a significance test, and no permutation test is implemented. **Budget size
+matters for that column:** as the budget approaches the size of a dataset, every subsample is nearly the whole
+dataset and the interval shrinks towards zero, so small differences get a side. `divscore` prints a warning when a
+budget is above half of a dataset's tokens or texts.
 
 **Metrics.** N-grams never cross a text boundary.
 
@@ -275,6 +279,8 @@ Type-token curves to 200000 tokens, mean of 5 orders.
   a subword tokeniser, so budgets are not comparable to model token counts.
 - The intervals are subsampling intervals: they describe random samples of the budget size drawn from the dataset as
   it is, not uncertainty about the process that produced it. There is no permutation test in `compare`.
+- The intervals narrow towards zero as the budget approaches the size of the smaller dataset; keep budgets at about
+  half of it or less before reading the "more diverse" column.
 - Cutting the last text of a token subsample keeps the count exact but leaves one partial text per draw.
 - The templates are masked word 5-grams, not the part-of-speech templates of Shaib et al.; quoted spans are matched
   by a regular expression that misses nested and unbalanced quotes.
