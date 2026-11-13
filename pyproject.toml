@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "divscore"
 version = "0.1.0"
-description = "Lexical and structural diversity of text datasets, with every metric taken at a fixed token budget."
+description = "Lexical and structural diversity of text datasets, with every metric taken at a fixed budget of tokens or texts."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -28,7 +28,14 @@ classifiers = [
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.7"]
-dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "nltk>=3.8", "rouge-score>=0.1.2", "matplotlib>=3.7"]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.5",
+    "nltk>=3.8",
+    "rouge-score>=0.1.2",
+    "matplotlib>=3.7",
+]
 
 [project.scripts]
 divscore = "divscore.cli:main"
