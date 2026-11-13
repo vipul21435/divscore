@@ -1,0 +1,89 @@
+{
+  "name": "magpie",
+  "n_texts": 21555,
+  "words": 3,
+  "top": 10,
+  "top_share": 0.26235212247738343,
+  "herfindahl": 0.011390907617068883,
+  "distinct": 5493,
+  "openings": [
+    {
+      "text": "what is the",
+      "count": 1336,
+      "share": 0.06198097889120854
+    },
+    {
+      "text": "you are a",
+      "count": 1216,
+      "share": 0.056413825098585016
+    },
+    {
+      "text": "what are some",
+      "count": 619,
+      "share": 0.028717234980283
+    },
+    {
+      "text": "i want to",
+      "count": 471,
+      "share": 0.021851078636047322
+    },
+    {
+      "text": "you are an",
+      "count": 398,
+      "share": 0.018464393412201345
+    },
+    {
+      "text": "what are the",
+      "count": 387,
+      "share": 0.017954070981210855
+    },
+    {
+      "text": "i am writing",
+      "count": 338,
+      "share": 0.015680816515889585
+    },
+    {
+      "text": "how do you",
+      "count": 306,
+      "share": 0.014196242171189978
+    },
+    {
+      "text": "i have a",
+      "count": 301,
+      "share": 0.013964277429830666
+    },
+    {
+      "text": "how do i",
+      "count": 283,
+      "share": 0.013129204360937138
+    }
+  ],
+  "template_n": 5,
+  "templates": [
+    {
+      "text": ". can you help me",
+      "count": 485,
+      "share": 0.022500579911853398
+    },
+    {
+      "text": "<num> , <num> , <num>",
+      "count": 458,
+      "share": 0.021247970308513105
+    },
+    {
+      "text": ", <num> , <num> ,",
+      "count": 413,
+      "share": 0.019160287636279284
+    },
+    {
+      "text": "to reach the top of",
+      "count": 301,
+      "share": 0.013964277429830666
+    },
+    {
+      "text": "at the bottom of a",
+      "count": 301,
+      "share": 0.013964277429830666
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "name": "dolly",
+  "n_texts": 15011,
+  "words": 3,
+  "top": 10,
+  "top_share": 0.25428019452401573,
+  "herfindahl": 0.009923471349842306,
+  "distinct": 5629,
+  "openings": [
+    {
+      "text": "what is the",
+      "count": 978,
+      "share": 0.06515222170408368
+    },
+    {
+      "text": "what are the",
+      "count": 557,
+      "share": 0.03710612217707015
+    },
+    {
+      "text": "give me a",
+      "count": 419,
+      "share": 0.02791286389980681
+    },
+    {
+      "text": "what are some",
+      "count": 361,
+      "share": 0.02404903071081207
+    },
+    {
+      "text": "what is a",
+      "count": 334,
+      "share": 0.022250349743521417
+    },
+    {
+      "text": "identify which instrument",
+      "count": 277,
+      "share": 0.018453134368130036
+    },
+    {
+      "text": "classify each of",
+      "count": 251,
+      "share": 0.016721071214442742
+    },
+    {
+      "text": "given this paragraph",
+      "count": 241,
+      "share": 0.016054893078409165
+    },
+    {
+      "text": "from the passage",
+      "count": 207,
+      "share": 0.01378988741589501
+    },
+    {
+      "text": "tell me whether",
+      "count": 192,
+      "share": 0.012790620211844647
+    }
+  ],
+  "template_n": 5,
+  "templates": [
+    {
+      "text": "which instrument is string or",
+      "count": 277,
+      "share": 0.018453134368130036
+    },
+    {
+      "text": "identify which instrument is string",
+      "count": 277,
+      "share": 0.018453134368130036
+    },
+    {
+      "text": "give me a list of",
+      "count": 266,
+      "share": 0.017720338418493103
+    },
+    {
+      "text": "instrument is string or percussion",
+      "count": 228,
+      "share": 0.015188861501565518
+    },
+    {
+      "text": "is string or percussion :",
+      "count": 228,
+      "share": 0.015188861501565518
+    }
+  ]
+}

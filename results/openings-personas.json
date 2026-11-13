@@ -1,0 +1,89 @@
+{
+  "name": "personas",
+  "n_texts": 29980,
+  "words": 3,
+  "top": 10,
+  "top_share": 0.1629753168779186,
+  "herfindahl": 0.0048455296637607195,
+  "distinct": 5970,
+  "openings": [
+    {
+      "text": "write a short",
+      "count": 1009,
+      "share": 0.033655770513675784
+    },
+    {
+      "text": "write a detailed",
+      "count": 585,
+      "share": 0.0195130086724483
+    },
+    {
+      "text": "provide a list",
+      "count": 557,
+      "share": 0.0185790527018012
+    },
+    {
+      "text": "provide a summary",
+      "count": 442,
+      "share": 0.014743162108072048
+    },
+    {
+      "text": "provide me with",
+      "count": 430,
+      "share": 0.014342895263509006
+    },
+    {
+      "text": "provide a detailed",
+      "count": 426,
+      "share": 0.014209472981987992
+    },
+    {
+      "text": "what is the",
+      "count": 381,
+      "share": 0.012708472314876585
+    },
+    {
+      "text": "write a brief",
+      "count": 372,
+      "share": 0.012408272181454303
+    },
+    {
+      "text": "please draft a",
+      "count": 362,
+      "share": 0.012074716477651768
+    },
+    {
+      "text": "create a detailed",
+      "count": 322,
+      "share": 0.010740493662441628
+    }
+  ],
+  "template_n": 5,
+  "templates": [
+    {
+      "text": "<q> , <q> , and",
+      "count": 2101,
+      "share": 0.07008005336891261
+    },
+    {
+      "text": ", <q> , and <q>",
+      "count": 1966,
+      "share": 0.06557705136757838
+    },
+    {
+      "text": ": <q> , <q> ,",
+      "count": 1851,
+      "share": 0.06174116077384923
+    },
+    {
+      "text": "the word <q> at least",
+      "count": 1825,
+      "share": 0.060873915943962645
+    },
+    {
+      "text": "the exact sentence : <q>",
+      "count": 1689,
+      "share": 0.056337558372248166
+    }
+  ]
+}

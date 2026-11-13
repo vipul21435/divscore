@@ -1,0 +1,89 @@
+{
+  "name": "alpaca",
+  "n_texts": 52002,
+  "words": 3,
+  "top": 10,
+  "top_share": 0.09763086035152495,
+  "herfindahl": 0.0016937084696240698,
+  "distinct": 16610,
+  "openings": [
+    {
+      "text": "what is the",
+      "count": 1011,
+      "share": 0.01944155994000231
+    },
+    {
+      "text": "generate a list",
+      "count": 801,
+      "share": 0.01540325372101073
+    },
+    {
+      "text": "come up with",
+      "count": 614,
+      "share": 0.011807238183146803
+    },
+    {
+      "text": "rewrite the following",
+      "count": 473,
+      "share": 0.009095804007538172
+    },
+    {
+      "text": "classify the following",
+      "count": 444,
+      "share": 0.00853813314872505
+    },
+    {
+      "text": "create a list",
+      "count": 405,
+      "share": 0.00778816199376947
+    },
+    {
+      "text": "compare and contrast",
+      "count": 356,
+      "share": 0.006845890542671436
+    },
+    {
+      "text": "given the following",
+      "count": 340,
+      "share": 0.0065382100688435064
+    },
+    {
+      "text": "what are the",
+      "count": 328,
+      "share": 0.0063074497134725585
+    },
+    {
+      "text": "edit the following",
+      "count": 305,
+      "share": 0.00586515903234491
+    }
+  ],
+  "template_n": 5,
+  "templates": [
+    {
+      "text": "<num> , <num> , <num>",
+      "count": 682,
+      "share": 0.013114880196915504
+    },
+    {
+      "text": ", <num> , <num> ,",
+      "count": 575,
+      "share": 0.011057267028191223
+    },
+    {
+      "text": "[ <num> , <num> ,",
+      "count": 281,
+      "share": 0.005403638321603016
+    },
+    {
+      "text": ", <num> , <num> ]",
+      "count": 280,
+      "share": 0.005384408291988769
+    },
+    {
+      "text": "generate a list of <num>",
+      "count": 214,
+      "share": 0.00411522633744856
+    }
+  ]
+}
