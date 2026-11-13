@@ -147,6 +147,21 @@ def heaps_beta(token_lists: Sequence[Sequence[str]], start: int = 50, num: int =
     return heaps_fit(ns, vs)[1]
 
 
+def heaps_beta_shuffled(
+    token_lists: Sequence[Sequence[str]], orders: int = 5, seed: int = 0
+) -> float:
+    """Mean Heaps exponent over ``orders`` seeded shuffles of the texts.
+
+    The texts are sorted first, so the result does not depend on the order in
+    which they were given (a file sorted by topic would otherwise bend the
+    curve).
+    """
+    base = sorted(tuple(t) for t in token_lists)
+    rng = np.random.default_rng(seed)
+    betas = [heaps_beta([base[int(i)] for i in rng.permutation(len(base))]) for _ in range(orders)]
+    return float(np.mean(betas))
+
+
 def length_summary(lengths: Sequence[int]) -> dict[str, float]:
     """Mean, quantiles and maximum of text lengths in tokens."""
     arr = np.asarray(lengths, dtype=float)

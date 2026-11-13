@@ -26,6 +26,7 @@ from .minhash import near_duplicate_rate
 from .pairwise import rouge_l_homogenization, self_bleu
 from .structure import (
     heaps_beta,
+    heaps_beta_shuffled,
     herfindahl,
     length_summary,
     mask_tokens,
@@ -189,6 +190,9 @@ def measure(
     values = subsample_values(pool, budget, tok_suite, resamples, seed, unit="tokens")
     units = {k: "tokens" for k in tok_suite}
     naive: dict[str, float | None] = {k: fn(pool) for k, fn in tok_suite.items()}
+    if "heaps-beta" in naive and metrics is None:
+        # one fit in file order depends on how the file is sorted
+        naive["heaps-beta"] = heaps_beta_shuffled(_tokens(pool), seed=seed)
     if text_budget is not None:
         txt_suite = (
             dict(text_metrics)

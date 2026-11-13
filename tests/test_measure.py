@@ -111,3 +111,20 @@ def test_reports_render():
     js = measurement_json(m)
     assert '"name": "tiny"' in js
     assert not math.isnan(m.lengths["mean"])
+
+
+def test_whole_dataset_heaps_beta_ignores_file_order():
+    import random
+
+    from divscore.structure import heaps_beta_shuffled
+
+    rng = random.Random(0)
+    # a file sorted by "topic": the first half uses one vocabulary, the second another
+    texts = [" ".join(f"a{rng.randrange(300)}" for _ in range(12)) for _ in range(60)]
+    texts += [" ".join(f"b{rng.randrange(3000)}" for _ in range(12)) for _ in range(60)]
+    docs = make_docs(texts)
+    fwd = measure(docs, budget=200, resamples=2, seed=3)
+    rev = measure(docs[::-1], budget=200, resamples=2, seed=3)
+    assert fwd.naive["heaps-beta"] == rev.naive["heaps-beta"]
+    expected = heaps_beta_shuffled([d.tokens for d in docs], seed=3)
+    assert fwd.naive["heaps-beta"] == pytest.approx(expected)
