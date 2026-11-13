@@ -90,12 +90,26 @@ def template_counts(masked: Sequence[Sequence[str]], n: int = 5) -> Counter[tupl
     return counts
 
 
+def repeated(counts: Counter, min_texts: int = 2) -> Counter:
+    """Only the templates found in at least ``min_texts`` texts.
+
+    An n-gram that occurs in a single text is not a template; without this
+    filter a corpus with no repetition at all would get a "top ten" chosen by
+    tie-breaking.
+    """
+    return Counter({g: c for g, c in counts.items() if c >= min_texts})
+
+
 def template_share(masked: Sequence[Sequence[str]], n: int = 5, top: int = 10) -> float:
-    """Share of texts containing at least one of the ``top`` most frequent templates."""
+    """Share of texts containing one of the ``top`` most frequent repeated templates.
+
+    Templates are masked n-grams found in at least two texts; the value is 0
+    when there are none.
+    """
     docs = [t for t in masked if len(t)]
     if not docs:
         return math.nan
-    common = {g for g, _ in ranked(template_counts(docs, n), top)}
+    common = {g for g, _ in ranked(repeated(template_counts(docs, n)), top)}
     hit = sum(1 for t in docs if any(tuple(t[i : i + n]) in common for i in range(len(t) - n + 1)))
     return hit / len(docs)
 
@@ -203,7 +217,7 @@ def openings_summary(
         "templates": [],
     }
     if templates > 0:
-        tcounts = template_counts([mask_tokens(t, lowercase) for t in texts], template_n)
+        tcounts = repeated(template_counts([mask_tokens(t, lowercase) for t in texts], template_n))
         summary["templates"] = [
             {"text": " ".join(g), "count": c, "share": c / n} for g, c in ranked(tcounts, templates)
         ]

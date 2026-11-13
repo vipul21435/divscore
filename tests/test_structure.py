@@ -136,3 +136,10 @@ def test_digits_inside_words_are_not_masked():
 def test_identifier_corpus_is_not_one_template():
     texts = [mask_tokens(f"open file w{i} then close w{i + 1} now") for i in range(20)]
     assert template_share(texts, n=5, top=1) < 0.2
+
+
+def test_templates_need_two_texts():
+    unique = [[f"{c}{i}" for i in range(8)] for c in "abcdefghij"]
+    assert template_share(unique, n=5, top=10) == 0.0
+    one_pair = unique + [unique[0][:6]]
+    assert template_share(one_pair, n=5, top=10) == pytest.approx(2 / 11)
