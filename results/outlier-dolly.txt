@@ -1,0 +1,5 @@
+dolly instructions: median 11 tokens, longest 3705
+draws containing it: 7 of 100
+distinct-3 mean with it 0.793, without it 0.845
+distinct-2: dolly minus alpaca +0.0421 [+0.0231, +0.0569]
+distinct-3: dolly minus alpaca -0.0243 [-0.0381, -0.0084]

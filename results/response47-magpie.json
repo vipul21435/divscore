@@ -1,0 +1,124 @@
+{
+  "name": "magpie",
+  "n_texts": 21555,
+  "n_tokens": 1011661,
+  "skipped": 0,
+  "truncate": 47,
+  "lengths": {
+    "mean": 46.93393644166087,
+    "p10": 47.0,
+    "median": 47.0,
+    "p90": 47.0,
+    "max": 47.0
+  },
+  "token_budget": 50000,
+  "text_budget": null,
+  "resamples": 100,
+  "seed": 0,
+  "metrics": {
+    "distinct-1": {
+      "budget": "tokens",
+      "naive": 0.024296676455848352,
+      "at_budget": {
+        "mean": 0.1255788,
+        "sd": 0.0014148928502815239,
+        "lo": 0.122972,
+        "hi": 0.128028,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": true
+    },
+    "distinct-2": {
+      "budget": "tokens",
+      "naive": 0.23069449129689146,
+      "at_budget": {
+        "mean": 0.5409606497241799,
+        "sd": 0.004148094640745663,
+        "lo": 0.5321479819721517,
+        "hi": 0.5482108554379368,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": true
+    },
+    "distinct-3": {
+      "budget": "tokens",
+      "naive": 0.5289726013961032,
+      "at_budget": {
+        "mean": 0.8131172625486216,
+        "sd": 0.004651563523083726,
+        "lo": 0.8041716921733241,
+        "hi": 0.8230301937621278,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": true
+    },
+    "entropy-1": {
+      "budget": "tokens",
+      "naive": 9.617995713720962,
+      "at_budget": {
+        "mean": 9.382408046069083,
+        "sd": 0.017030908725850512,
+        "lo": 9.352053589708786,
+        "hi": 9.412900324114009,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": true
+    },
+    "entropy-2": {
+      "budget": "tokens",
+      "naive": 15.234918262360765,
+      "at_budget": {
+        "mean": 13.758146629674426,
+        "sd": 0.022219978567957686,
+        "lo": 13.718672929565074,
+        "hi": 13.797011573075206,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": true
+    },
+    "cr-gzip": {
+      "budget": "tokens",
+      "naive": 2.7450524898074242,
+      "at_budget": {
+        "mean": 2.696484737737332,
+        "sd": 0.012718480385905772,
+        "lo": 2.673352268055974,
+        "hi": 2.71985666588565,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": false
+    },
+    "cr-bz2": {
+      "budget": "tokens",
+      "naive": 4.075944991078336,
+      "at_budget": {
+        "mean": 3.5129322220988546,
+        "sd": 0.020279284094002464,
+        "lo": 3.4798119098313514,
+        "hi": 3.5538698012763166,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": false
+    },
+    "heaps-beta": {
+      "budget": "tokens",
+      "naive": 0.6565241584516477,
+      "at_budget": {
+        "mean": 0.7477330101936672,
+        "sd": 0.013238918245629918,
+        "lo": 0.727553552160001,
+        "hi": 0.773317450339891,
+        "level": 0.95,
+        "resamples": 100
+      },
+      "higher_is_more_diverse": true
+    }
+  }
+}
