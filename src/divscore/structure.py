@@ -148,3 +148,36 @@ def length_summary(lengths: Sequence[int]) -> dict[str, float]:
         "p90": float(q[2]),
         "max": float(arr.max()),
     }
+
+
+def openings_summary(
+    texts: Sequence[str],
+    token_lists: Sequence[Sequence[str]],
+    words: int = 3,
+    top: int = 20,
+    template_n: int = 5,
+    templates: int = 10,
+) -> dict:
+    """Top openings and masked templates over a whole dataset, with shares."""
+    counts = opening_counts(token_lists, words)
+    n = len(token_lists)
+    summary: dict = {
+        "n_texts": n,
+        "words": words,
+        "top": top,
+        "top_share": top_share(counts, top),
+        "herfindahl": herfindahl(counts),
+        "distinct": len(counts),
+        "openings": [
+            {"text": " ".join(o), "count": c, "share": c / n} for o, c in counts.most_common(top)
+        ],
+        "template_n": template_n,
+        "templates": [],
+    }
+    if templates > 0:
+        tcounts = template_counts([mask_tokens(t) for t in texts], template_n)
+        summary["templates"] = [
+            {"text": " ".join(g), "count": c, "share": c / n}
+            for g, c in tcounts.most_common(templates)
+        ]
+    return summary

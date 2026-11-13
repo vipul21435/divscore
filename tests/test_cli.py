@@ -6,76 +6,115 @@ import pytest
 from divscore.cli import main
 
 EXAMPLES = Path(__file__).resolve().parent.parent / "examples" / "data"
+VARIED = str(EXAMPLES / "varied.jsonl")
+TEMPLATED = str(EXAMPLES / "templated.jsonl")
+SMALL = ["--budget", "200", "--texts", "20", "--resamples", "10"]
+
+
+def run_json(tmp_path, args):
+    out = tmp_path / "r.json"
+    assert main([*args, "--format", "json", "-o", str(out)]) == 0
+    return json.loads(out.read_text())
 
 
 def test_measure_markdown_on_example(capsys):
-    rc = main(["measure", str(EXAMPLES / "varied.jsonl"), "--budget", "200", "--resamples", "20"])
-    assert rc == 0
+    assert main(["measure", VARIED, *SMALL]) == 0
     out = capsys.readouterr().out
     assert "## varied.jsonl" in out
+    assert "Budget: 200 tokens" in out
+    assert "Budget: 20 texts" in out
     assert "| distinct-2 | higher |" in out
-    assert "| cr-gzip | lower |" in out
+    assert "| vendi | higher |" in out
+    assert "| self-bleu | lower |" in out
 
 
 def test_measure_json_shape_and_budget(tmp_path):
-    out = tmp_path / "r.json"
-    rc = main(
-        [
-            "measure",
-            str(EXAMPLES / "templated.jsonl"),
-            "--budget",
-            "250",
-            "--resamples",
-            "10",
-            "--format",
-            "json",
-            "-o",
-            str(out),
-        ]
-    )
-    assert rc == 0
-    data = json.loads(out.read_text())
-    assert data["budget"] == 250
+    data = run_json(tmp_path, ["measure", TEMPLATED, *SMALL])
+    assert data["token_budget"] == 200
+    assert data["text_budget"] == 20
     assert data["n_texts"] == 30
     d2 = data["metrics"]["distinct-2"]
-    assert d2["higher_is_more_diverse"] is True
+    assert d2["budget"] == "tokens"
     assert d2["at_budget"]["lo"] <= d2["at_budget"]["mean"] <= d2["at_budget"]["hi"]
+    assert data["metrics"]["vendi"]["budget"] == "texts"
+    assert data["metrics"]["vendi"]["naive"] is None
+    assert data["metrics"]["opening-top10"]["naive"] is not None
+
+
+def test_measure_without_text_metrics(tmp_path):
+    data = run_json(tmp_path, ["measure", VARIED, "--budget", "200", "--texts", "0"])
+    assert "vendi" not in data["metrics"]
+    assert data["text_budget"] is None
 
 
 def test_templated_example_is_less_diverse_at_equal_budget(tmp_path):
-    reports = {}
-    for name in ("varied", "templated"):
-        out = tmp_path / f"{name}.json"
-        main(
-            [
-                "measure",
-                str(EXAMPLES / f"{name}.jsonl"),
-                "--budget",
-                "250",
-                "--resamples",
-                "30",
-                "--format",
-                "json",
-                "-o",
-                str(out),
-            ]
-        )
-        reports[name] = json.loads(out.read_text())["metrics"]
-    for metric in ("distinct-1", "distinct-2", "entropy-2"):
-        assert (
-            reports["varied"][metric]["at_budget"]["mean"]
-            > reports["templated"][metric]["at_budget"]["mean"]
-        )
-    assert (
-        reports["varied"]["cr-gzip"]["at_budget"]["mean"]
-        < reports["templated"]["cr-gzip"]["at_budget"]["mean"]
+    data = run_json(
+        tmp_path,
+        ["compare", VARIED, TEMPLATED, "--budget", "250", "--texts", "25", "--resamples", "30"],
     )
+    diffs = {d["metric"]: d for d in data["differences"]}
+    for metric in ("distinct-1", "distinct-2", "entropy-2", "vendi"):
+        assert diffs[metric]["diff"] > 0
+        assert diffs[metric]["interval_excludes_zero"]
+    for metric in ("cr-gzip", "self-bleu", "rouge-l", "opening-top10"):
+        assert diffs[metric]["diff"] < 0
+
+
+def test_compare_markdown_has_verdicts(capsys):
+    assert main(["compare", VARIED, TEMPLATED, *SMALL, "--name-a", "v", "--name-b", "t"]) == 0
+    out = capsys.readouterr().out
+    assert "## v (A) vs t (B)" in out
+    assert "| distinct-2 | higher |" in out
+    assert "| A |" in out
+
+
+def test_compare_field_b(tmp_path):
+    other = tmp_path / "b.jsonl"
+    rows = [json.loads(line) for line in Path(TEMPLATED).read_text().splitlines()]
+    other.write_text("\n".join(json.dumps({"prompt": r["text"]}) for r in rows), encoding="utf-8")
+    data = run_json(tmp_path, ["compare", VARIED, str(other), "--field-b", "prompt", *SMALL])
+    assert data["b"]["n_texts"] == 30
+
+
+def test_openings_markdown_and_json(tmp_path, capsys):
+    assert main(["openings", TEMPLATED, "--top", "3"]) == 0
+    out = capsys.readouterr().out
+    assert "| 1 | write a short | 30 | 1.0000 |" in out
+    assert "templates" in out
+    data = run_json(tmp_path, ["openings", VARIED, "--top", "5", "--templates", "0"])
+    assert data["n_texts"] == 30
+    assert len(data["openings"]) == 5
+    assert data["templates"] == []
+
+
+def test_curve_table_json_and_plot(tmp_path, capsys):
+    plot = tmp_path / "c.png"
+    args = ["curve", VARIED, TEMPLATED, "--names", "v,t", "--orders", "3", "--plot", str(plot)]
+    assert main(args) == 0
+    out = capsys.readouterr().out
+    assert "| v |" in out and "| t |" in out
+    assert plot.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+    data = run_json(tmp_path, ["curve", VARIED, "--max-tokens", "200"])
+    assert data[0]["tokens"][-1] == 200
+    assert 0 < data[0]["heaps_beta"] <= 1.0
+
+
+def test_curve_names_must_match(capsys):
+    assert main(["curve", VARIED, "--names", "a,b"]) == 2
+    assert "--names" in capsys.readouterr().err
 
 
 def test_budget_larger_than_data_is_an_error(capsys):
-    rc = main(["measure", str(EXAMPLES / "varied.jsonl"), "--budget", "100000"])
-    assert rc == 2
+    assert main(["measure", VARIED, "--budget", "100000"]) == 2
     assert "--budget" in capsys.readouterr().err
+    assert main(["measure", VARIED, "--budget", "100", "--texts", "100"]) == 2
+    assert "--texts" in capsys.readouterr().err
+
+
+def test_truncate(tmp_path):
+    data = run_json(tmp_path, ["measure", VARIED, *SMALL, "--truncate", "8"])
+    assert data["truncate"] == 8
+    assert data["lengths"]["max"] == 8
 
 
 def test_no_texts_is_an_error(tmp_path, capsys):
