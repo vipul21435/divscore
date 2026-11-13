@@ -115,3 +115,24 @@ def test_ranked_breaks_ties_by_key():
 def test_mask_tokens_keeps_case_when_asked():
     assert mask_tokens("Call Me 3 times", lowercase=False) == ["Call", "Me", "<num>", "times"]
     assert mask_tokens("İstanbul 3") == [tokenize("İstanbul")[0], "<num>"]
+
+
+def test_digits_inside_words_are_not_masked():
+    text = "utf8 h2o x86_64 python3.12 3rd"
+    assert mask_tokens(text) == tokenize(text)
+    assert mask_tokens("costs 3.50 or (12) items, 4:30") == [
+        "costs",
+        "<num>",
+        "or",
+        "(",
+        "<num>",
+        ")",
+        "items",
+        ",",
+        "<num>",
+    ]
+
+
+def test_identifier_corpus_is_not_one_template():
+    texts = [mask_tokens(f"open file w{i} then close w{i + 1} now") for i in range(20)]
+    assert template_share(texts, n=5, top=1) < 0.2

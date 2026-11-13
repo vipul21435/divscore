@@ -15,11 +15,13 @@ from .text import tokenize
 WORD_RE = re.compile(r"\w")
 
 # Quoted spans (double, curly, backtick, and single quotes not inside a word)
-# and numbers are replaced by placeholders before templates are counted.
+# and standalone numbers are replaced by placeholders before templates are
+# counted. A number must not touch a word character on either side, so digits
+# inside identifiers (utf8, x86_64, python3.12, 3rd) are left alone.
 MASK_RE = re.compile(
     r"(?P<q>\"[^\"\n]{1,300}\"|“[^”\n]{1,300}”|`[^`\n]{1,300}`"
     r"|(?<!\w)'[^'\n]{1,300}'(?!\w))"
-    r"|(?P<num>\d+(?:[.,:]\d+)*)"
+    r"|(?P<num>(?<!\w)(?<!\w[.,:])\d+(?:[.,:]\d+)*(?!\w))"
 )
 QUOTE_TOKEN = "<q>"
 NUMBER_TOKEN = "<num>"
