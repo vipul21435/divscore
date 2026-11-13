@@ -114,6 +114,8 @@ budget is above half of a dataset's tokens or texts.
   the compression ratio as original size over gzip size and report that high values mean more redundancy.
 - **heaps-beta**: the exponent of Heaps' law V = K N^beta, fitted by least squares in log space to the number of
   distinct tokens V after N tokens, at 12 points spaced on a log scale from 50 tokens to the end of the subsample.
+  The whole-dataset value is the mean of the fit over five seeded shuffles of the texts, since a single fit in file
+  order depends on how the file is sorted.
 - **self-bleu**: each text scored by BLEU-4 against all other texts of the subsample as references, averaged, as in
   Texygen (Zhu et al., 2018, [arXiv:1802.01886](https://arxiv.org/abs/1802.01886); the project's
   [evaluation notes](https://github.com/geek-ai/Texygen/blob/master/docs/evaluation.md) describe it as "Regarding
