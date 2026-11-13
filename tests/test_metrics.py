@@ -29,6 +29,15 @@ def test_distinct_n_by_hand():
     assert distinct_n(texts, 3) == pytest.approx(1.0)
 
 
+def test_distinct_n_per_token_denominator():
+    texts = [["the", "cat", "sat"], ["the", "cat", "ran"]]
+    # 3 distinct bigrams over 6 tokens
+    assert distinct_n(texts, 2, per="token") == pytest.approx(3 / 6)
+    assert distinct_n(texts, 1, per="token") == distinct_n(texts, 1)
+    with pytest.raises(ValueError):
+        distinct_n(texts, 2, per="text")
+
+
 def test_ngrams_do_not_cross_texts():
     # joined, "b c" would be a bigram; split, it is not
     counts = ngram_counts([["a", "b"], ["c", "d"]], 2)

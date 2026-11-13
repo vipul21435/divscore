@@ -36,14 +36,25 @@ def ngram_counts(token_lists: Iterable[Sequence[str]], n: int) -> Counter[tuple[
     return counts
 
 
-def distinct_n(token_lists: Iterable[Sequence[str]], n: int) -> float:
-    """Distinct n-grams divided by total n-grams (Li et al., 2016).
+def distinct_n(token_lists: Iterable[Sequence[str]], n: int, per: str = "ngram") -> float:
+    """Number of distinct n-grams divided by a count of the text.
 
-    Returns ``nan`` when the texts hold no n-gram of that order.
+    ``per="ngram"`` (default) divides by the total number of n-grams, so the
+    value lies in (0, 1]. ``per="token"`` divides by the total number of
+    tokens, which is how Li et al. (2016) state distinct-1 and distinct-2
+    ("divided by total number of generated words"). The two agree for
+    ``n = 1``. Returns ``nan`` when the texts hold no n-gram of that order.
     """
-    counts = ngram_counts(token_lists, n)
+    if per not in ("ngram", "token"):
+        raise ValueError("per must be 'ngram' or 'token'")
+    lists = list(token_lists)
+    counts = ngram_counts(lists, n)
     total = sum(counts.values())
-    return len(counts) / total if total else math.nan
+    if not total:
+        return math.nan
+    if per == "token":
+        total = sum(len(t) for t in lists)
+    return len(counts) / total
 
 
 def ngram_entropy(token_lists: Iterable[Sequence[str]], n: int) -> float:
