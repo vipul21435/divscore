@@ -171,6 +171,7 @@ scripts/run_real.sh data
 python scripts/table.py results instruction
 python scripts/table.py results response
 python scripts/table.py results instruction15 short
+cat results/outlier-dolly.txt
 ```
 
 The dataset revisions are pinned in `scripts/fetch_data.py`, and `data/` is ignored by git. `run_real.sh` runs
@@ -267,6 +268,12 @@ What the tables show:
   `divscore compare` puts dolly minus alpaca at -0.0286 [-0.0895, -0.0109] for distinct-3, where the whole-data
   difference is +0.1458. For distinct-2 the whole-data gap of +0.1920 shrinks to +0.0396 [-0.0021, 0.0548]
   (`results/compare-dolly-alpaca.md`).
+- **One record widens dolly's intervals.** dolly's longest instruction has 3,705 tokens (the median is
+  11). It falls in 7 of the 100 token draws, where distinct-3 averages 0.793 against 0.845 in the others;
+  those draws give the low ends of dolly's token-budget intervals (distinct-3 [0.781, 0.858]). Without it,
+  distinct-2 dolly minus alpaca is +0.0421 [+0.0231, +0.0569], so the interval above reaches below zero because
+  of that one record, and distinct-3 stays reversed at -0.0243 [-0.0381, -0.0084] (`scripts/outlier.py`,
+  `results/outlier-dolly.txt`). The median, 90th percentile and longest rows in the tables show such tails.
 - **A token budget fixes the amount of text, not the length of the texts.** With whole instructions personas is the
   least varied set at 20,000 tokens: distinct-2 0.499 against 0.619 to 0.659 for the other three.
   Its instructions are also long (56.8 tokens on average, against 14.8 for dolly). With every instruction cut to
