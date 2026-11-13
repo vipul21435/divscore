@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from .text import TOKEN_RE
+from .text import tokenize
 
 WORD_RE = re.compile(r"\w")
 
@@ -73,11 +73,10 @@ def mask_tokens(text: str, lowercase: bool = True) -> list[str]:
     pos = 0
     for m in MASK_RE.finditer(text):
         seg = text[pos : m.start()]
-        out.extend(TOKEN_RE.findall(seg.lower() if lowercase else seg))
+        out.extend(tokenize(seg, lowercase))
         out.append(QUOTE_TOKEN if m.group("q") else NUMBER_TOKEN)
         pos = m.end()
-    seg = text[pos:]
-    out.extend(TOKEN_RE.findall(seg.lower() if lowercase else seg))
+    out.extend(tokenize(text[pos:], lowercase))
     return out
 
 
@@ -168,6 +167,7 @@ def openings_summary(
     top: int = 20,
     template_n: int = 5,
     templates: int = 10,
+    lowercase: bool = True,
 ) -> dict:
     """Top openings and masked templates over a whole dataset, with shares."""
     counts = opening_counts(token_lists, words)
@@ -186,7 +186,7 @@ def openings_summary(
         "templates": [],
     }
     if templates > 0:
-        tcounts = template_counts([mask_tokens(t) for t in texts], template_n)
+        tcounts = template_counts([mask_tokens(t, lowercase) for t in texts], template_n)
         summary["templates"] = [
             {"text": " ".join(g), "count": c, "share": c / n} for g, c in ranked(tcounts, templates)
         ]

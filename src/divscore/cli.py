@@ -160,6 +160,7 @@ def _measure_one(path: Path, name: str | None, docs: list[Doc], skipped: int, se
         text_budget=args.texts or None,
         skipped=skipped,
         truncate=args.truncate,
+        lowercase=not args.keep_case,
     )
 
 
@@ -200,6 +201,7 @@ def _cmd_openings(args: argparse.Namespace) -> int:
         top=args.top,
         template_n=args.template_n,
         templates=args.templates,
+        lowercase=not args.keep_case,
     )
     name = args.name or args.path.name
     if args.format == "json":

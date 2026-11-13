@@ -156,3 +156,15 @@ def test_json_null_is_an_error(tmp_path, capsys):
     p.write_text("null", encoding="utf-8")
     assert main(["measure", str(p)]) == 2
     assert "top level" in capsys.readouterr().err
+
+
+def test_keep_case_reaches_the_template_table(tmp_path):
+    p = tmp_path / "d.jsonl"
+    rows = ["Write A Short Poem About cats"] * 3 + ["write a short poem about dogs"] * 2
+    p.write_text("\n".join(json.dumps({"text": r}) for r in rows), encoding="utf-8")
+    lower = run_json(tmp_path, ["openings", str(p), "--top", "2"])
+    kept = run_json(tmp_path, ["openings", str(p), "--top", "2", "--keep-case"])
+    assert lower["templates"][0] == {"text": "write a short poem about", "count": 5, "share": 1.0}
+    kept_rows = {row["text"]: row["count"] for row in kept["templates"]}
+    assert kept_rows["Write A Short Poem About"] == 3
+    assert kept_rows["write a short poem about"] == 2

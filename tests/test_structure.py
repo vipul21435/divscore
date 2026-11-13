@@ -110,3 +110,8 @@ def test_ranked_breaks_ties_by_key():
     b = Counter({("a",): 2, ("c",): 5, ("b",): 2})
     assert ranked(a, 2) == ranked(b, 2) == [(("c",), 5), (("a",), 2)]
     assert ranked(a) == [(("c",), 5), (("a",), 2), (("b",), 2)]
+
+
+def test_mask_tokens_keeps_case_when_asked():
+    assert mask_tokens("Call Me 3 times", lowercase=False) == ["Call", "Me", "<num>", "times"]
+    assert mask_tokens("İstanbul 3") == [tokenize("İstanbul")[0], "<num>"]

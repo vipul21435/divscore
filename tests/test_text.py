@@ -40,3 +40,10 @@ def test_empty_text_gives_empty_doc():
     docs = make_docs(["", "a b"])
     assert len(docs[0]) == 0
     assert total_tokens(docs) == 2
+
+
+def test_tokenize_and_make_doc_agree_on_expanding_lowercase():
+    # "İ".lower() is two characters; lowercasing before matching split the word.
+    text = "İstanbul ve İzmir"
+    assert len(tokenize(text)) == 3
+    assert tuple(tokenize(text)) == make_doc(text).tokens

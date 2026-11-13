@@ -41,11 +41,19 @@ class Doc:
         return Doc(self.text[:cut], self.tokens[:k], self.ends[:k])
 
 
+def normalize(token: str, lowercase: bool = True) -> str:
+    """Case-fold one token; every tokenising path goes through here."""
+    return token.lower() if lowercase else token
+
+
 def tokenize(text: str, lowercase: bool = True) -> list[str]:
-    """Split ``text`` into word and punctuation tokens."""
-    if lowercase:
-        text = text.lower()
-    return TOKEN_RE.findall(text)
+    """Split ``text`` into word and punctuation tokens.
+
+    Tokens are matched on the original text and lowercased one by one, so a
+    character whose lowercase form is longer (such as "\u0130") cannot split a
+    word.
+    """
+    return [normalize(m.group(0), lowercase) for m in TOKEN_RE.finditer(text)]
 
 
 def make_doc(text: str, lowercase: bool = True) -> Doc:
@@ -53,8 +61,7 @@ def make_doc(text: str, lowercase: bool = True) -> Doc:
     tokens: list[str] = []
     ends: list[int] = []
     for m in TOKEN_RE.finditer(text):
-        tok = m.group(0)
-        tokens.append(tok.lower() if lowercase else tok)
+        tokens.append(normalize(m.group(0), lowercase))
         ends.append(m.end())
     return Doc(text, tuple(tokens), tuple(ends))
 

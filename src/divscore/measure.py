@@ -84,8 +84,14 @@ def metric_suite(
     return suite
 
 
-def text_suite(seed: int = 0, pairs: int = DEFAULT_PAIRS) -> dict[str, Metric]:
-    """Text-budget metrics; ``seed`` fixes the ROUGE-L pair draws and MinHash functions."""
+def text_suite(
+    seed: int = 0, pairs: int = DEFAULT_PAIRS, lowercase: bool = True
+) -> dict[str, Metric]:
+    """Text-budget metrics; ``seed`` fixes the ROUGE-L pair draws and MinHash functions.
+
+    ``lowercase`` applies to the template metric, which re-tokenises the raw
+    text after masking; the other metrics use the tokens as given.
+    """
     pair_rng = np.random.default_rng(seed + 7919)
     return {
         "self-bleu": lambda docs: self_bleu(_tokens(docs)),
@@ -94,7 +100,9 @@ def text_suite(seed: int = 0, pairs: int = DEFAULT_PAIRS) -> dict[str, Metric]:
         "near-dup": lambda docs: near_duplicate_rate(_tokens(docs), seed=seed),
         "opening-top10": lambda docs: top_share(opening_counts(_tokens(docs)), 10),
         "opening-hhi": lambda docs: herfindahl(opening_counts(_tokens(docs))),
-        "template-top10": lambda docs: template_share([mask_tokens(d.text) for d in docs]),
+        "template-top10": lambda docs: template_share(
+            [mask_tokens(d.text, lowercase) for d in docs]
+        ),
     }
 
 
@@ -171,6 +179,7 @@ def measure(
     text_metrics: dict[str, Metric] | None = None,
     skipped: int = 0,
     truncate: int | None = None,
+    lowercase: bool = True,
 ) -> Measurement:
     """Measure one dataset at ``budget`` tokens and, if given, ``text_budget`` texts."""
     if not 0.0 < level < 1.0:
@@ -181,7 +190,11 @@ def measure(
     units = {k: "tokens" for k in tok_suite}
     naive: dict[str, float | None] = {k: fn(pool) for k, fn in tok_suite.items()}
     if text_budget is not None:
-        txt_suite = dict(text_metrics) if text_metrics is not None else text_suite(seed)
+        txt_suite = (
+            dict(text_metrics)
+            if text_metrics is not None
+            else text_suite(seed, lowercase=lowercase)
+        )
         values.update(subsample_values(pool, text_budget, txt_suite, resamples, seed, "texts"))
         units.update({k: "texts" for k in txt_suite})
         for k, fn in txt_suite.items():
