@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import sys
 from collections.abc import Sequence
@@ -250,7 +251,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return COMMANDS[args.command](args)
-    except (UsageError, ValueError, OSError, RuntimeError) as exc:
+    except (UsageError, ValueError, OSError, RuntimeError, csv.Error) as exc:
         print(f"divscore: {exc}", file=sys.stderr)
         return 2
 

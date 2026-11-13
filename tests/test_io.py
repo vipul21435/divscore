@@ -93,3 +93,18 @@ def test_bad_json_line_reports_line(tmp_path):
 def test_unknown_format(tmp_path):
     with pytest.raises(ValueError, match="unknown format"):
         load_texts(tmp_path / "x", fmt="xml")
+
+
+def test_csv_field_longer_than_default_limit(tmp_path):
+    p = tmp_path / "long.csv"
+    long_text = "word " * 30_000  # 150,000 characters
+    p.write_text(f'text\n"{long_text}"\n', encoding="utf-8")
+    assert len(load_texts(p).texts[0]) == len(long_text)
+
+
+@pytest.mark.parametrize("payload", ["null", "3", '"just a string"'])
+def test_json_top_level_must_be_list_or_object(tmp_path, payload):
+    p = tmp_path / "d.json"
+    p.write_text(payload, encoding="utf-8")
+    with pytest.raises(ValueError, match="top level"):
+        load_texts(p)

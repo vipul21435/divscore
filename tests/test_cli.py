@@ -134,3 +134,25 @@ def test_version(capsys):
         main(["--version"])
     assert exc.value.code == 0
     assert "divscore" in capsys.readouterr().out
+
+
+def test_csv_error_is_reported_not_raised(tmp_path, capsys, monkeypatch):
+    import csv
+
+    import divscore.cli as cli
+
+    def broken(*args, **kwargs):
+        raise csv.Error("bad quoting")
+
+    monkeypatch.setattr(cli, "load_texts", broken)
+    p = tmp_path / "d.csv"
+    p.write_text("text\na\n", encoding="utf-8")
+    assert main(["measure", str(p)]) == 2
+    assert "bad quoting" in capsys.readouterr().err
+
+
+def test_json_null_is_an_error(tmp_path, capsys):
+    p = tmp_path / "d.json"
+    p.write_text("null", encoding="utf-8")
+    assert main(["measure", str(p)]) == 2
+    assert "top level" in capsys.readouterr().err

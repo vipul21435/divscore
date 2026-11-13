@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import csv
 import json
+import sys
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
@@ -105,6 +106,17 @@ def extract_text(record: Any, field: str | None = "text", role: str | None = Non
     return "\n".join(parts) if parts else None
 
 
+def _raise_csv_field_limit() -> None:
+    """Allow CSV fields as long as the platform permits (the default is 131,072 chars)."""
+    limit = sys.maxsize
+    while True:
+        try:
+            csv.field_size_limit(limit)
+            return
+        except OverflowError:
+            limit //= 2
+
+
 def iter_records(path: str | Path, fmt: str | None = None) -> Iterator[Any]:
     """Yield raw records (dicts, or strings for plain text) from ``path``."""
     fmt = fmt or detect_format(path)
@@ -115,6 +127,10 @@ def iter_records(path: str | Path, fmt: str | None = None) -> Iterator[Any]:
         data = json.loads(p.read_text(encoding="utf-8"))
         if isinstance(data, dict):
             data = next((v for v in data.values() if isinstance(v, list)), [data])
+        if not isinstance(data, list):
+            raise ValueError(
+                f"{p}: top level must be a list or an object, not {type(data).__name__}"
+            )
         yield from data
     elif fmt == "jsonl":
         with p.open(encoding="utf-8") as fh:
@@ -127,6 +143,7 @@ def iter_records(path: str | Path, fmt: str | None = None) -> Iterator[Any]:
                 except json.JSONDecodeError as exc:
                     raise ValueError(f"{p}:{lineno}: invalid JSON ({exc.msg})") from exc
     elif fmt in ("csv", "tsv"):
+        _raise_csv_field_limit()
         with p.open(encoding="utf-8", newline="") as fh:
             yield from csv.DictReader(fh, delimiter="," if fmt == "csv" else "\t")
     else:
