@@ -113,9 +113,11 @@ def self_bleu(token_lists: Sequence[Sequence[str]], max_n: int = 4) -> float:
 def lcs_length(a: Sequence[str], b: Sequence[str]) -> int:
     """Length of the longest common subsequence, bit-parallel over ``a``.
 
-    Uses the bit-vector recurrence of Allison and Dix (1986) with Python
-    integers as bit sets, so each symbol of ``b`` costs a few big-integer
-    operations instead of ``len(a)`` cell updates.
+    Uses the classic bit-vector recurrence ``V = (V + U) | (V - U)`` with
+    ``U = V & match(y)``, holding the rows of the dynamic-programming table as
+    Python integers, so each symbol of ``b`` costs a few big-integer
+    operations instead of ``len(a)`` cell updates. The tests check it against
+    the plain dynamic programme.
     """
     if not a or not b:
         return 0
