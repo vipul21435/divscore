@@ -19,8 +19,14 @@ for s in $sets; do
     --templates 5 --format json -o "$out/openings-$s.json"
 done
 
+# magpie responses cut to dolly's mean response length, token metrics only
+uv run divscore measure "$data/magpie.jsonl" --name magpie --field response --truncate 47 \
+  --budget 50000 --texts 0 --resamples 100 --seed 0 --format json -o "$out/response47-magpie.json"
+
 uv run divscore compare "$data/dolly.jsonl" "$data/alpaca.jsonl" --name-a dolly --name-b alpaca \
   --field instruction --budget 20000 --texts 500 --resamples 100 -o "$out/compare-dolly-alpaca.md"
+
+uv run python scripts/outlier.py "$data" > "$out/outlier-dolly.txt"
 
 uv run divscore curve "$data/dolly.jsonl" "$data/alpaca.jsonl" "$data/magpie.jsonl" \
   "$data/personas.jsonl" --names dolly,alpaca,magpie,personas --field instruction \
