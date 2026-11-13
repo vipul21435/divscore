@@ -1,6 +1,10 @@
 """Print a README table from the JSON reports in results/.
 
     python scripts/table.py results instruction
+    python scripts/table.py results instruction15 short
+
+``short`` prints only the length rows, the token-budget rows at the budget and
+the self-BLEU and Vendi rows.
 
 One column per dataset, one row per metric; token-budget metrics get a row
 for the whole dataset and a row at the budget.
@@ -36,6 +40,7 @@ def row(label: str, cells: list[str]) -> str:
 
 def main() -> None:
     root, kind = Path(sys.argv[1]), sys.argv[2]
+    short = len(sys.argv) > 3 and sys.argv[3] == "short"
     reports = [json.loads((root / f"{kind}-{s}.json").read_text()) for s in SETS]
     first = reports[0]
     tb, xb = first["token_budget"], first["text_budget"]
@@ -47,8 +52,14 @@ def main() -> None:
     for key, label in (("median", "median"), ("p90", "90th percentile"), ("max", "longest")):
         print(row(f"{label} tokens per text", [f"{r['lengths'][key]:.0f}" for r in reports]))
     for name in TOKEN_ROWS:
-        print(row(f"{name}, whole", [f"{r['metrics'][name]['naive']:.3f}" for r in reports]))
+        if not short:
+            print(row(f"{name}, whole", [f"{r['metrics'][name]['naive']:.3f}" for r in reports]))
         print(row(f"{name}, {tb} tokens", [cell(r["metrics"][name]) for r in reports]))
+    if short:
+        for name in ("self-bleu", "vendi"):
+            digits = 1 if name == "vendi" else 3
+            print(row(f"{name}, {xb} texts", [cell(r["metrics"][name], digits) for r in reports]))
+        return
     for name in TEXT_ROWS:
         digits = 1 if name == "vendi" else 3
         print(row(f"{name}, {xb} texts", [cell(r["metrics"][name], digits) for r in reports]))
