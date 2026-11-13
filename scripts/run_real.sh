@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Reproduce the README numbers. Usage: scripts/run_real.sh DATA_DIR
 # DATA_DIR holds the JSONL files written by scripts/fetch_data.py.
+# Runs one command at a time; needs uv and about 1 GB of free memory.
 set -euo pipefail
 data="${1:?usage: scripts/run_real.sh DATA_DIR}"
 out="results"
@@ -9,15 +10,14 @@ sets="dolly alpaca magpie personas"
 
 for s in $sets; do
   uv run divscore measure "$data/$s.jsonl" --name "$s" --field instruction \
-    --budget 20000 --texts 500 --resamples 100 --seed 0 --format json -o "$out/instruction-$s.json" &
-  uv run divscore measure "$data/$s.jsonl" --name "$s" --field response --truncate 100 \
-    --budget 50000 --texts 500 --resamples 100 --seed 0 --format json -o "$out/response-$s.json" &
+    --budget 20000 --texts 500 --resamples 100 --seed 0 --format json -o "$out/instruction-$s.json"
   uv run divscore measure "$data/$s.jsonl" --name "$s" --field instruction --truncate 15 \
-    --budget 20000 --texts 500 --resamples 100 --seed 0 --format json -o "$out/instruction15-$s.json" &
+    --budget 20000 --texts 500 --resamples 100 --seed 0 --format json -o "$out/instruction15-$s.json"
+  uv run divscore measure "$data/$s.jsonl" --name "$s" --field response --truncate 100 \
+    --budget 50000 --texts 500 --resamples 100 --seed 0 --format json -o "$out/response-$s.json"
   uv run divscore openings "$data/$s.jsonl" --name "$s" --field instruction --top 10 \
-    --templates 5 --format json -o "$out/openings-$s.json" &
+    --templates 5 --format json -o "$out/openings-$s.json"
 done
-wait
 
 uv run divscore compare "$data/dolly.jsonl" "$data/alpaca.jsonl" --name-a dolly --name-b alpaca \
   --field instruction --budget 20000 --texts 500 --resamples 100 -o "$out/compare-dolly-alpaca.md"
