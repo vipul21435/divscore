@@ -87,6 +87,41 @@ def summarize(values: Sequence[float], level: float = 0.95) -> Estimate:
     return Estimate(float(arr.mean()), sd, float(lo), float(hi), level, len(values))
 
 
+def sample_texts(docs: Sequence[Doc], n_texts: int, rng: np.random.Generator) -> list[Doc]:
+    """Draw ``n_texts`` distinct non-empty texts, whole, in random order."""
+    if n_texts < 2:
+        raise ValueError("a text budget needs at least 2 texts")
+    pool = [d for d in docs if len(d)]
+    if len(pool) < n_texts:
+        raise ValueError(
+            f"text budget of {n_texts} exceeds the {len(pool)} non-empty texts available"
+        )
+    return [pool[int(i)] for i in rng.choice(len(pool), size=n_texts, replace=False)]
+
+
+def subsample_values(
+    docs: Sequence[Doc],
+    budget: int,
+    metrics: Mapping[str, Metric],
+    resamples: int = 100,
+    seed: int = 0,
+    unit: str = "tokens",
+) -> dict[str, list[float]]:
+    """Each metric on the same ``resamples`` subsamples; ``unit`` is tokens or texts."""
+    if resamples < 1:
+        raise ValueError("resamples must be at least 1")
+    if unit not in ("tokens", "texts"):
+        raise ValueError("unit must be 'tokens' or 'texts'")
+    draw = sample_to_budget if unit == "tokens" else sample_texts
+    rng = np.random.default_rng(seed)
+    values: dict[str, list[float]] = {name: [] for name in metrics}
+    for _ in range(resamples):
+        sample = draw(docs, budget, rng)
+        for name, fn in metrics.items():
+            values[name].append(fn(sample))
+    return values
+
+
 def at_budget(
     docs: Sequence[Doc],
     budget: int,
@@ -94,16 +129,10 @@ def at_budget(
     resamples: int = 100,
     seed: int = 0,
     level: float = 0.95,
+    unit: str = "tokens",
 ) -> dict[str, Estimate]:
-    """Evaluate every metric on the same ``resamples`` samples of ``budget`` tokens."""
-    if resamples < 1:
-        raise ValueError("resamples must be at least 1")
+    """Evaluate every metric on the same ``resamples`` samples of ``budget`` tokens (or texts)."""
     if not 0.0 < level < 1.0:
         raise ValueError("level must be between 0 and 1")
-    rng = np.random.default_rng(seed)
-    values: dict[str, list[float]] = {name: [] for name in metrics}
-    for _ in range(resamples):
-        sample = sample_to_budget(docs, budget, rng)
-        for name, fn in metrics.items():
-            values[name].append(fn(sample))
+    values = subsample_values(docs, budget, metrics, resamples, seed, unit)
     return {name: summarize(v, level) for name, v in values.items()}
